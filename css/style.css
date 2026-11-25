@@ -42,3 +42,6 @@ html[data-theme=light] select,html[data-theme=light] input,html[data-theme=light
 html[data-theme=light] #nav{background:#f1f1f3}html[data-theme=light] #nav button,html[data-theme=light] .ghost,html[data-theme=light] .brand,html[data-theme=light] th,html[data-theme=light] .note,html[data-theme=light] .rl,html[data-theme=light] .hd div,html[data-theme=light] .ft,html[data-theme=light] .label,html[data-theme=light] .it small,html[data-theme=light] .fl{color:#222}
 html[data-theme=light] #btns button.alt,html[data-theme=light] .row button,html[data-theme=light] .box button{background:#dcdce0;color:#000}html[data-theme=light] #btns button:not(.alt){color:#fff}
 html[data-theme=light] #view{background:#fff}html[data-theme=light] .pos,html[data-theme=light] .danger{color:#b00010}html[data-theme=light] #warnbox{background:#fff3d1;color:#5a3d00}html[data-theme=light] .hd a,html[data-theme=light] .sumbox a{color:#0b4fb3}
+
+#tplScr{position:fixed;inset:0 0 0 48px;background:var(--bg);overflow:auto;padding:env(safe-area-inset-top) 12px 20px;z-index:14}
+.row2{display:flex;gap:8px;margin:6px 0}.row2 button{flex:1;min-height:44px;font-size:13px}#tplSave{width:100%;min-height:44px;margin:6px 0}.chk{display:flex;gap:8px;align-items:center;margin:8px 0}
