@@ -5,7 +5,7 @@ const f=(c,big)=>{const h=Math.floor(c/360000),m=Math.floor(c%360000/6000),s=Mat
  if(big)return(h?h+":":"")+p(m)+":"+p(s)+","+p(x);
  return h?h+":"+p(m)+":"+p(s)+","+p(x):m?m+":"+p(s)+","+p(x):s+","+p(x)};
 const rsave=()=>window.SKTO_REC&&SKTO_REC.save(),FB=SKTO_FB;
-const C={mode:"train",dist:"",laps:null,hasRun:false,auto:true,rankOn:false,sex:0,cat:"A",cmp:false,name:"",refT:[],bad:false,athlete:"",title:"",comment:"",recId:null,started:0,notes:[],endReason:null};
+const C={mode:"train",dist:"",laps:null,hasRun:false,auto:true,rankOn:false,sex:0,cat:"A",cmp:false,name:"",refT:[],bad:false,athlete:"",title:"",comment:"",recId:null,started:0,notes:[],endReason:null,tplId:null,tplName:"",tplSnap:""};
 let saved=false;
 const dsel=$("dist");dsel.innerHTML='<option value="">Без дистанции (свободные круги)</option>'+SKTO_DIST.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
 $("cat").innerHTML=Object.entries(N.CATS).filter(([k])=>k<"D").map(([k,v])=>`<option value="${k}">${k}: ${v}</option>`).join("");
@@ -45,7 +45,7 @@ const rankAt=c=>{if(!C.rankOn||!C.dist)return"";const r=N.evalTime(c,C.cat,C.dis
 const dcell=d=>`<td class="${d<0?"neg":d>0?"pos":"eq"}">${CM.fd(d,f)}</td>`;
 function render(){
  const st=T.state(),sg=T.segs(),el=T.elapsedCs(),last=sg[sg.length-1],prevC=last?last.c:0,k=sg.length,fin=st==="finished";
- $("big").textContent=f(el,true);{const wb=$("warnbox");wb.hidden=!C.notes.length;wb.textContent=C.notes.length?"⚠ "+C.notes.join(" "):""}$("big").classList.toggle("long",el>=360000);
+ $("big").textContent=f(el,true);{const ti=$("tplInfo");if(ti)ti.textContent=C.tplId?"Шаблон: «"+C.tplName+"»"+(changed()?" — график изменён (шаблон не обновлён)":""):""}{const wb=$("warnbox");wb.hidden=!C.notes.length;wb.textContent=C.notes.length?"⚠ "+C.notes.join(" "):""}$("big").classList.toggle("long",el>=360000);
  $("rLast").innerHTML=last?`<td>${segName(k-1)}</td><td>${f(last.d)}</td><td>${f(last.c)}</td>`:"<td>—</td><td>—</td><td>—</td>";
  $("rCur").hidden=fin;$("rCur").innerHTML=`<td>${segName(k)}${st==="idle"?"":" — идёт"}</td><td>${f(Math.max(0,el-prevC))}</td><td>${f(el)}</td>`;
  const rk=$("rank");rk.hidden=!C.rankOn;
@@ -64,12 +64,12 @@ function render(){
  $("tbl").tHead.innerHTML="<tr><th>Отр.</th><th>Время</th><th>Общее</th>"+(ref?"<th>Δ круг</th><th>Δ общ.</th>":"")+(C.rankOn?"<th>Разряд</th>":"")+"</tr>";
  sg.forEach((s,i)=>rows.push(`<tr><td>${segName(i)}</td><td>${f(s.d)}</td><td>${i?f(s.c):""}</td>${ref?(dv[i]?dcell(dv[i].dl)+dcell(dv[i].dc):"<td>—</td><td>—</td>"):""}${C.rankOn?`<td>${rankAt(s.c)}</td>`:""}</tr>`));
  if(snap.unfin&&fin)rows.push(`<tr class="unf"><td>Незаверш.</td><td>${f(snap.unfin)}</td><td>${f(el)}</td>${ref?"<td>—</td><td>—</td>":""}${C.rankOn?"<td>—</td>":""}</tr>`);
- $("tbl").tBodies[0].innerHTML=rows.reverse().join("");
+ $("tbl").tBodies[0].innerHTML=rows.join(""); /* хронологический порядок: разгон/1-й круг сверху */
  /* итог после финиша */
  const sm=$("sum");sm.hidden=!fin;if(fin){let h=`<div class="sumbox">Итоговое время: <b>${f(el)}</b>`;
   if(ref){const s=CM.summary(ref,sg);h+=`<br>Ориентир${C.name?" «"+C.name.replace(/</g,"&lt;")+"»":""}: ${f(s.refTotal)}`+(s.n?`<br>Разница на ${s.n} отсеч.: <b class="${s.total<0?"neg":s.total>0?"pos":""}">${CM.fd(s.total,f)}</b><br>Быстрее: ${s.fa} · медленнее: ${s.sl} · одинаково: ${s.eq}`:"")+(s.incomplete?"<br>Сравнение незавершённое.":"")+(s.extra?`<br>Дополнительных кругов без ориентира: ${s.extra}.`:"")}
   sm.innerHTML=h+"</div>"}
- const lk=locked();["mode","dist","laps","auto","cmpOn","cmpName"].forEach(i=>$(i).disabled=lk);$("hasRun").disabled=lk||!C.dist;$("rankOn").disabled=lk||!C.dist;
+ const lk=locked();["mode","dist","laps","auto","cmpOn","cmpName","tplPick","tplSave"].forEach(i=>$(i).disabled=lk);$("hasRun").disabled=lk||!C.dist;$("rankOn").disabled=lk||!C.dist;
  [...document.querySelectorAll("#refRows input")].forEach(x=>x.disabled=lk);
 }
 /* запись журнала: основной режим = C.mode, дополнительные функции — только отметки */
@@ -94,7 +94,7 @@ $("mDo").onclick=()=>{$("modal").hidden=true;doReset()};
 /* «Использовать для сравнения»: исходная запись не меняется */
 function useAsRef(r){if(locked()){SKTO_JRN.toast("Сначала завершите текущий замер");return false}
  const cs=r.segs.map(s=>s.d);C.mode="compare";C.cmp=true;C.rankOn=false;C.dist=r.dist;C.hasRun=!!r.hasRun;C.laps=r.dist?cs.length-(r.hasRun?1:0):cs.length;
- C.name=r.title||r.athlete||(r.distName?r.distName+" "+new Date(r.started).toLocaleDateString("ru-RU"):"Запись");
+ C.tplId=null;C.name=r.title||r.athlete||(r.distName?r.distName+" "+new Date(r.started).toLocaleDateString("ru-RU"):"Запись");
  C.refT=cs.map(c=>[c>=6000?String(Math.floor(c/6000)):"",String(Math.floor(c%6000/100)),String(Math.floor(c%100/10)),String(c%10)]);
  sync();$("cfg").hidden=false;return true}
 /* --- интерфейс для recovery.js --- */
@@ -102,6 +102,16 @@ const getState=()=>({C:JSON.parse(JSON.stringify(C)),unfin:snap.unfin,saved});
 function applyConfig(s){Object.assign(C,s.C);C.notes=C.notes||[];snap.unfin=s.unfin;saved=!!s.saved;$("btns").dataset.k="";["athlete","title","comment"].forEach(k=>$(k).value=C[k]||"");sync()}
 function warn(m){if(!C.notes.includes(m))C.notes.push(m);render()}
 function finishRestored(reason){const m=T.marks(),last=m.length?m[m.length-1]:0,el=T.elapsedCs();snap.unfin=el>last?el-last:null;if(reason)C.endReason=reason;FB.wake(false);render();return persist()}
-window.APP={f,sync,render,useAsRef,C,T,getState,applyConfig,warn,finishRestored,isSaved:()=>saved};
+/* --- шаблоны сравнения (хранение и интерфейс — js/templates.js) --- */
+const graphOf=()=>JSON.stringify({n:C.name,d:C.dist,l:C.laps,r:C.hasRun,t:refCs()});
+const changed=()=>C.tplSnap!==graphOf();
+function markLoaded(t){C.tplId=t.id;C.tplName=t.name;C.tplSnap=graphOf();render()}
+/* загрузка меняет ТОЛЬКО график сравнения; спортсмен/название/комментарий и прочее не трогаются (режим — лишь по явному выбору) */
+function applyTemplate(t,mode){if(locked())return false;if(mode)setMode(mode);
+ C.cmp=true;C.dist=t.dist;C.hasRun=!!t.hasRun;C.laps=t.laps;C.name=t.refName;if(!C.dist)C.rankOn=false;
+ C.refT=t.times.map(c=>[c>=6000?String(Math.floor(c/6000)):"",String(Math.floor(c%6000/100)),String(Math.floor(c%100/10)),String(c%10)]);
+ C.bad=false;sync();markLoaded(t);return true}
+const refGet=()=>({ok:refOk(),cs:refOk()?refCs():[],name:C.name,dist:C.dist,laps:C.laps,hasRun:C.hasRun});
+window.APP={f,sync,render,useAsRef,C,T,getState,applyConfig,warn,finishRestored,isSaved:()=>saved,applyTemplate,markLoaded,changed,refGet,locked};
 sync();
 })();
