@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="СКТО Секундомер"><meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="stylesheet" href="css/style.css"><title>СКТО | Умный секундомер</title></head><body>
-<nav id="nav"></nav><div id="scr" hidden></div><div id="view" hidden></div><div id="toast" hidden></div>
+<nav id="nav"></nav><div id="scr" hidden></div><div id="view" hidden></div><div id="tplScr" hidden></div><div id="toast" hidden></div>
 <div id="app">
 <header><span class="brand">СКТО | Умный секундомер</span><button id="cfgBtn" class="ghost">Настройки замера</button></header>
 <div id="upd" hidden>Доступно обновление приложения. <button id="updBtn">Установить</button></div><div id="warnbox" hidden></div>
@@ -18,8 +18,8 @@
  <div id="rankCfg" hidden><label>Пол <select id="sex"><option value="0">Мужской</option><option value="1">Женский</option></select></label>
  <label>Каток <select id="cat"></select></label></div>
  <label class="chk"><input id="cmpOn" type="checkbox"> Сравнение с ориентиром</label>
- <div id="cmpBox" hidden><label>Название ориентира <input id="cmpName" type="text" maxlength="40" placeholder="Полина, План 1500, А…"></label>
- <div id="refRows"></div><div id="refSum" class="note"></div></div>
+ <div id="cmpBox" hidden><div class="row2"><button id="tplPick" class="ghost" type="button">Выбрать шаблон</button><button id="tplMgr" class="ghost" type="button">Управление шаблонами</button></div><label>Название ориентира <input id="cmpName" type="text" maxlength="40" placeholder="Полина, План 1500, А…"></label>
+ <div id="refRows"></div><div id="refSum" class="note"></div><div id="tplInfo" class="note"></div><button id="tplSave" class="ghost" type="button">Сохранить как шаблон</button></div>
  <p id="cfgNote" class="note"></p></section>
 <main>
  <div class="label">ОБЩЕЕ ВРЕМЯ</div><div id="big">00:00,00</div>
@@ -32,5 +32,5 @@
 </main>
 <footer>СКТО</footer></div>
 <div id="modal" hidden><div class="box"><h3>Сбросить секундомер?</h3><p id="mTxt">Убедитесь, что текущий результат сохранён.</p><button id="mSave">Сохранить и сбросить</button><button id="mDo" class="danger">Сбросить без сохранения</button><button id="mNo">Отмена</button></div></div>
-<script src="js/norms.js"></script><script src="js/distances.js"></script><script src="js/comparison.js"></script><script src="js/storage.js"></script><script src="js/feedback.js"></script><script src="js/help.js"></script><script src="js/journal.js"></script><script src="js/timer.js"></script><script src="js/app.js"></script><script src="js/recovery.js"></script><script src="js/update.js"></script>
-<script>SKTO_JRN.init();SKTO_FB.init();SKTO_REC.init();SKTO_UPD.init();</script></body></html>
+<script src="js/norms.js"></script><script src="js/distances.js"></script><script src="js/comparison.js"></script><script src="js/storage.js"></script><script src="js/feedback.js"></script><script src="js/help.js"></script><script src="js/journal.js"></script><script src="js/timer.js"></script><script src="js/app.js"></script><script src="js/recovery.js"></script><script src="js/update.js"></script><script src="js/templates.js"></script>
+<script>SKTO_JRN.init();SKTO_FB.init();SKTO_REC.init();SKTO_UPD.init();SKTO_TPL.init();</script></body></html>
